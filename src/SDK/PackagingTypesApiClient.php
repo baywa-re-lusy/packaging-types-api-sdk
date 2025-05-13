@@ -4,8 +4,10 @@ namespace BayWaReLusy\UsersAPI\SDK;
 
 use BayWaReLusy\PackagingTypesAPI\SDK\PackagingTypeEntity;
 use BayWaReLusy\PackagingTypesAPI\SDK\PackagingTypesApiException;
+use BayWaReLusy\PackagingTypesAPI\SDK\PackagingTypeSortField;
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Http\Message\RequestFactoryInterface;
+use Psr\Http\Message\UriFactoryInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Http\Client\ClientInterface as HttpClient;
 use Symfony\Component\Console\Output\OutputInterface as Console;
@@ -28,6 +30,7 @@ class PackagingTypesApiClient
         protected string $clientSecret,
         protected CacheItemPoolInterface $cache,
         protected RequestFactoryInterface $requestFactory,
+        protected UriFactoryInterface $uriFactory,
         protected HttpClient $httpClient,
         protected ?LoggerInterface $logger = null
     ) {
@@ -91,12 +94,17 @@ class PackagingTypesApiClient
     /**
      * Get the list of Packaging Types.
      *
+     * @param PackagingTypeSortField $sortBy The field by which to sort the packaging types
+     * @param bool $onlyActive If true, return only active packaging types
      * @param bool $refreshCache If true, users are fetched from the API and the cache is refreshed
-     * @return PackagingTypeEntity[]
+     * @return array
      * @throws PackagingTypesApiException
      */
-    public function getPackagingTypes(bool $refreshCache = false): array
-    {
+    public function getPackagingTypes(
+        PackagingTypeSortField $sortBy,
+        bool $onlyActive = false,
+        bool $refreshCache = false,
+    ): array {
         try {
             $this->console?->writeln(sprintf(
                 "[%s] Fetching Packaging Types from API...",
@@ -122,10 +130,17 @@ class PackagingTypesApiClient
             // If the cached users are no longer valid, get them from the Users API
             $this->loginToAuthServer();
 
-            $request = $this->requestFactory->createRequest(
-                'GET',
-                rtrim($this->apiUrl, '/') . self::PACKAGING_TYPES_URI
-            );
+            $queryParams = ['sortBy' => $sortBy->value];
+
+            if ($onlyActive) {
+                $queryParams['onlyActive'] = 'true';
+            }
+
+            $uri = $this->uriFactory
+                ->createUri(rtrim($this->apiUrl, '/') . self::PACKAGING_TYPES_URI)
+                ->withQuery(http_build_query($queryParams));
+
+            $request = $this->requestFactory->createRequest('GET', $uri);
             $request = $request->withHeader('Authorization', sprintf("Bearer %s", $this->accessToken));
             $request = $request->withHeader('Accept', 'application/json');
 
