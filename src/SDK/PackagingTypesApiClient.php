@@ -1,10 +1,7 @@
 <?php
 
-namespace BayWaReLusy\UsersAPI\SDK;
+namespace BayWaReLusy\PackagingTypesAPI\SDK;
 
-use BayWaReLusy\PackagingTypesAPI\SDK\PackagingTypeEntity;
-use BayWaReLusy\PackagingTypesAPI\SDK\PackagingTypesApiException;
-use BayWaReLusy\PackagingTypesAPI\SDK\PackagingTypeSortField;
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\UriFactoryInterface;
@@ -47,14 +44,14 @@ class PackagingTypesApiClient
     }
 
     /**
-     * Get a token for the Users API.
+     * Get a token for the Packaging Types API.
      *
      * @throws PackagingTypesApiException
      */
     protected function loginToAuthServer(): void
     {
         try {
-            // Search for Users API token in Token Cache
+            // Search for API token in Token Cache
             $cachedToken = $this->cache->getItem(self::CACHE_KEY_API_TOKEN);
 
             // If the cached Token is valid
@@ -96,7 +93,7 @@ class PackagingTypesApiClient
      *
      * @param PackagingTypeSortField $sortBy The field by which to sort the packaging types
      * @param bool $onlyActive If true, return only active packaging types
-     * @param bool $refreshCache If true, users are fetched from the API and the cache is refreshed
+     * @param bool $refreshCache If true, packaging types are fetched from the API and the cache is refreshed
      * @return array
      * @throws PackagingTypesApiException
      */
@@ -114,7 +111,7 @@ class PackagingTypesApiClient
             // Get the packaging types from the cache
             $cachedPackagingTypes = $this->cache->getItem(self::CACHE_KEY_PACKAGING_TYPES);
 
-            // If the cached users are still valid and if there is no forced refresh, return them
+            // If the cached packaging types are still valid and if there is no forced refresh, return them
             if (!$refreshCache && $cachedPackagingTypes->isHit()) {
                 $cacheResult = $cachedPackagingTypes->get();
 
@@ -127,7 +124,7 @@ class PackagingTypesApiClient
                 return $cacheResult;
             }
 
-            // If the cached users are no longer valid, get them from the Users API
+            // If the cached packaging types are no longer valid, get them from the Packaging Types API
             $this->loginToAuthServer();
 
             $queryParams = ['sortBy' => $sortBy->value];
@@ -158,7 +155,7 @@ class PackagingTypesApiClient
                 $packagingTypes[] = $packagingType;
             }
 
-            // Cache the list of Users
+            // Cache the list of packaging types
             $cachedPackagingTypes
                 ->set($packagingTypes)
                 ->expiresAfter(self::CACHE_TTL_PACKAGING_TYPES);

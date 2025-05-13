@@ -2,7 +2,7 @@
 
 namespace BayWaReLusy\PackagingTypesAPI\SDK\Console;
 
-use BayWaReLusy\UsersAPI\SDK\PackagingTypesApiClient;
+use BayWaReLusy\PackagingTypesAPI\SDK\PackagingTypesApiClient;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
