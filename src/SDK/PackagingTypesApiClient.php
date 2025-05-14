@@ -130,7 +130,7 @@ class PackagingTypesApiClient
             $queryParams = ['sortBy' => $sortBy->value];
 
             if ($onlyActive) {
-                $queryParams['onlyActive'] = 'true';
+                $queryParams['active'] = 'true';
             }
 
             $uri = $this->uriFactory
