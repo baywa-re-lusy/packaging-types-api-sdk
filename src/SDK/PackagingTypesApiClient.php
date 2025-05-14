@@ -139,7 +139,7 @@ class PackagingTypesApiClient
 
             $request = $this->requestFactory->createRequest('GET', $uri);
             $request = $request->withHeader('Authorization', sprintf("Bearer %s", $this->accessToken));
-            $request = $request->withHeader('Accept', 'application/json');
+            $request = $request->withHeader('Accept', 'application/ld+json');
 
             $response       = $this->httpClient->sendRequest($request);
             $response       = json_decode($response->getBody()->getContents(), true);
