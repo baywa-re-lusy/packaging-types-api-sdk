@@ -2,6 +2,7 @@
 
 namespace BayWaReLusy\PackagingTypesAPI\SDK;
 
+use BayWaReLusy\PackagingTypesAPI\SDK\PackagingTypeEntity\Category;
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\UriFactoryInterface;
@@ -150,7 +151,16 @@ class PackagingTypesApiClient
                 $packagingType = new PackagingTypeEntity();
                 $packagingType
                     ->setId($packagingTypeData['id'])
-                ;
+                    ->setName($packagingTypeData['name'])
+                    ->setShortName($packagingTypeData['shortName'])
+                    ->setTransporeonId($packagingTypeData['transporeonId'])
+                    ->setCategory(Category::from($packagingTypeData['category']))
+                    ->setActive($packagingTypeData['active'])
+                    ->setLength($packagingTypeData['length'])
+                    ->setWidth($packagingTypeData['width'])
+                    ->setHeight($packagingTypeData['height'])
+                    ->setWeight($packagingTypeData['weight'])
+                    ->setMaxNbStackable($packagingTypeData['maxNbStackable']);
 
                 $packagingTypes[] = $packagingType;
             }
