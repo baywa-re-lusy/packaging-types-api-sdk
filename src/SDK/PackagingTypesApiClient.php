@@ -5,6 +5,7 @@ namespace BayWaReLusy\PackagingTypesAPI\SDK;
 use BayWaReLusy\PackagingTypesAPI\SDK\PackagingTypeEntity\Category;
 use InvalidArgumentException;
 use Psr\Cache\CacheItemPoolInterface;
+use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\UriFactoryInterface;
 use Psr\Log\LoggerInterface;
@@ -89,7 +90,7 @@ class PackagingTypesApiClient
             $this->accessToken = $accessToken;
         } catch (Throwable $e) {
             $this->logger?->error($e->getMessage());
-            throw new PackagingTypesApiException("Couldn't connect to Packaging Types API." . $e->getMessage());
+            throw new PackagingTypesApiException("Couldn't connect to Packaging Types API.");
         }
     }
 
@@ -99,7 +100,7 @@ class PackagingTypesApiClient
      * @param PackagingTypeSortField $sortBy The field by which to sort the packaging types
      * @param bool $onlyActive If true, return only active packaging types
      * @param bool $refreshCache If true, packaging types are fetched from the API and the cache is refreshed
-     * @return array
+     * @return array<int, PackagingTypeEntity>>
      * @throws PackagingTypesApiException
      */
     public function getPackagingTypes(
@@ -157,7 +158,7 @@ class PackagingTypesApiClient
             return $packagingTypes;
         } catch (Throwable $e) {
             $this->logger?->error($e->getMessage());
-            throw new PackagingTypesApiException("Couldn't retrieve the list of Packaging Types." . $e->getMessage() . $e->getTraceAsString());
+            throw new PackagingTypesApiException("Couldn't retrieve the list of Packaging Types.");
         }
     }
 
@@ -215,10 +216,17 @@ class PackagingTypesApiClient
             return $packagingType;
         } catch (\Throwable | InvalidArgumentException $e) {
             $this->logger?->error($e->getMessage());
-            throw new PackagingTypesApiException("Couldn't retrieve the list of Packaging Types." . $e->getMessage() . $e->getTraceAsString());
+            throw new PackagingTypesApiException("Couldn't retrieve the list of Packaging Types.");
         }
     }
 
+    /**
+     * @param PackagingTypeSortField $sortBy
+     * @param bool $onlyActive
+     * @return array<int, array<string, mixed>>
+     * @throws PackagingTypesApiException
+     * @throws ClientExceptionInterface
+     */
     protected function fetchPackagingTypesFromApi(
         PackagingTypeSortField $sortBy,
         bool $onlyActive = false
@@ -245,6 +253,10 @@ class PackagingTypesApiClient
         return $response['member'];
     }
 
+    /**
+     * @param array<string, mixed> $packagingTypeData
+     * @return PackagingTypeEntity
+     */
     protected function hydratePackagingType(array $packagingTypeData): PackagingTypeEntity
     {
         $packagingType = new PackagingTypeEntity();
