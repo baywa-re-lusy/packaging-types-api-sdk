@@ -284,6 +284,7 @@ class PackagingTypesApiClient
             ->setId(Uuid::fromString($packagingTypeData['id']))
             ->setName($packagingTypeData['name'])
             ->setShortName($packagingTypeData['shortName'])
+            ->setSortOrder($packagingTypeData['sortOrder'])
             ->setTransporeonId($packagingTypeData['transporeonId'])
             ->setCategory(Category::from($packagingTypeData['category']))
             ->setActive($packagingTypeData['active'])
