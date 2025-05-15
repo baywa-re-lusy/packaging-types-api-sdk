@@ -29,7 +29,8 @@ class PackagingTypesApiClient
         protected string $tokenUrl,
         protected string $clientId,
         protected string $clientSecret,
-        protected CacheItemPoolInterface $cache,
+        protected CacheItemPoolInterface $tokenCache,
+        protected CacheItemPoolInterface $packagingTypesCache,
         protected RequestFactoryInterface $requestFactory,
         protected UriFactoryInterface $uriFactory,
         protected HttpClient $httpClient,
@@ -56,7 +57,7 @@ class PackagingTypesApiClient
     {
         try {
             // Search for API token in Token Cache
-            $cachedToken = $this->cache->getItem(self::CACHE_KEY_API_TOKEN);
+            $cachedToken = $this->tokenCache->getItem(self::CACHE_KEY_API_TOKEN);
 
             // If the cached Token is valid
             if ($cachedToken->isHit()) {
@@ -82,13 +83,13 @@ class PackagingTypesApiClient
                     ->set($accessToken)
                     ->expiresAfter($body['expires_in'] - 10);
 
-                $this->cache->save($cachedToken);
+                $this->tokenCache->save($cachedToken);
             }
 
             $this->accessToken = $accessToken;
         } catch (Throwable $e) {
             $this->logger?->error($e->getMessage());
-            throw new PackagingTypesApiException("Couldn't connect to Packaging Types API.");
+            throw new PackagingTypesApiException("Couldn't connect to Packaging Types API." . $e->getMessage());
         }
     }
 
@@ -102,7 +103,7 @@ class PackagingTypesApiClient
      * @throws PackagingTypesApiException
      */
     public function getPackagingTypes(
-        PackagingTypeSortField $sortBy,
+        PackagingTypeSortField $sortBy = PackagingTypeSortField::ID,
         bool $onlyActive = false,
         bool $refreshCache = false,
     ): array {
@@ -113,7 +114,7 @@ class PackagingTypesApiClient
             ));
 
             // Get the packaging types from the cache
-            $cachedPackagingTypes = $this->cache->getItem(self::CACHE_KEY_PACKAGING_TYPES);
+            $cachedPackagingTypes = $this->packagingTypesCache->getItem(self::CACHE_KEY_PACKAGING_TYPES);
 
             // If the cached packaging types are still valid and if there is no forced refresh, return them
             if (!$refreshCache && $cachedPackagingTypes->isHit()) {
@@ -145,7 +146,7 @@ class PackagingTypesApiClient
                 ->set($packagingTypes)
                 ->expiresAfter(self::CACHE_TTL);
 
-            $this->cache->save($cachedPackagingTypes);
+            $this->packagingTypesCache->save($cachedPackagingTypes);
 
             $this->console?->writeln(sprintf(
                 "[%s] Cached the Packaging Types list, containing %s entries.",
@@ -156,7 +157,7 @@ class PackagingTypesApiClient
             return $packagingTypes;
         } catch (Throwable $e) {
             $this->logger?->error($e->getMessage());
-            throw new PackagingTypesApiException("Couldn't retrieve the list of Packaging Types.");
+            throw new PackagingTypesApiException("Couldn't retrieve the list of Packaging Types." . $e->getMessage() . $e->getTraceAsString());
         }
     }
 
@@ -171,7 +172,7 @@ class PackagingTypesApiClient
     {
         try {
             // Get the packaging type from the cache
-            $cachedPackagingType = $this->cache->getItem(sprintf(self::CACHE_KEY_PACKAGING_TYPE, $id));
+            $cachedPackagingType = $this->packagingTypesCache->getItem(sprintf(self::CACHE_KEY_PACKAGING_TYPE, $id));
 
             // If the cached packaging type is still valid, return it
             if ($cachedPackagingType->isHit()) {
@@ -209,12 +210,12 @@ class PackagingTypesApiClient
                 ->set($packagingType)
                 ->expiresAfter(self::CACHE_TTL);
 
-            $this->cache->save($cachedPackagingType);
+            $this->packagingTypesCache->save($cachedPackagingType);
 
             return $packagingType;
         } catch (\Throwable | InvalidArgumentException $e) {
             $this->logger?->error($e->getMessage());
-            throw new PackagingTypesApiException("Couldn't retrieve the list of Packaging Types.");
+            throw new PackagingTypesApiException("Couldn't retrieve the list of Packaging Types." . $e->getMessage() . $e->getTraceAsString());
         }
     }
 
@@ -272,15 +273,14 @@ class PackagingTypesApiClient
      */
     protected function cachePackagingType(PackagingTypeEntity $packagingType): void
     {
-        $cachedPackagingType = $this->cache->getItem(
+        $cachedPackagingType = $this->packagingTypesCache->getItem(
             sprintf(self::CACHE_KEY_PACKAGING_TYPE, $packagingType->getId()->toString())
-
         );
         $cachedPackagingType
             ->expiresAfter(self::CACHE_TTL)
             ->set($packagingType);
 
-        $this->cache->save($cachedPackagingType);
+        $this->packagingTypesCache->save($cachedPackagingType);
 
         $this->console?->writeln(sprintf(
             "[%s] Cached Packaging Type '%s'.",

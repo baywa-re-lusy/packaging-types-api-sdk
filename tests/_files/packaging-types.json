@@ -1,0 +1,53 @@
+{
+  "@context": "/contexts/PackagingType",
+  "@id": "/packaging-types",
+  "@type": "Collection",
+  "totalItems": 35,
+  "member": [
+    {
+      "@id": "/packaging-types/c84056a1-8d36-46c4-ae15-e3cb3db18ed2",
+      "@type": "PackagingType",
+      "id": "c84056a1-8d36-46c4-ae15-e3cb3db18ed2",
+      "name": "Module Pallet 240cm",
+      "shortName": "MPal 240",
+      "sortOrder": 1,
+      "transporeonId": "MODULE_PALLET_240",
+      "category": "pallet",
+      "active": true,
+      "length": 240,
+      "width": 115,
+      "height": 125,
+      "weight": 50,
+      "maxNbStackable": 2
+    },
+    {
+      "@id": "/packaging-types/05991cfa-84a4-4c7f-9486-7d25c6119238",
+      "@type": "PackagingType",
+      "id": "05991cfa-84a4-4c7f-9486-7d25c6119238",
+      "name": "Box",
+      "shortName": null,
+      "sortOrder": 27,
+      "transporeonId": "BOX",
+      "category": "parcel",
+      "active": true,
+      "length": 40,
+      "width": 30,
+      "height": 30,
+      "weight": 0,
+      "maxNbStackable": null
+    }
+  ],
+  "search": {
+    "@type": "IriTemplate",
+    "template": "/packaging-types{?active}",
+    "variableRepresentation": "BasicRepresentation",
+    "mapping": [
+      {
+        "@type": "IriTemplateMapping",
+        "variable": "active",
+        "property": "active",
+        "required": false
+      }
+    ]
+  }
+}

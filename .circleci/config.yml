@@ -64,6 +64,27 @@ jobs:
       - store_artifacts:
           path: results
 
+  phpunit:
+    docker:
+      - image: ${ACR_HOSTNAME_COMMON}/alpine-php82-build:2.2.1
+        auth:
+          username: ${ACR_LOGIN_COMMON}
+          password: ${ACR_PASSWORD_COMMON}
+    resource_class: large
+    working_directory: /var/www/html
+    steps:
+      - attach_workspace:
+          at: /var/www/html
+      - run:
+          name: PHPUnit
+          command: |
+            mkdir -p results/PHPUnit
+            vendor/bin/phpunit --log-junit results/PHPUnit/phpunit.xml
+      - store_test_results:
+          path: results
+      - store_artifacts:
+          path: results
+
 workflows:
   version: 2
   build:
@@ -71,6 +92,11 @@ workflows:
       - build:
           context:
             - ACR_CREDENTIALS
+      - phpunit:
+          context:
+            - ACR_CREDENTIALS
+          requires:
+            - build
       - static:
           context:
             - ACR_CREDENTIALS
