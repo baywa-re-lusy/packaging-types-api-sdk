@@ -221,6 +221,26 @@ class PackagingTypesApiClient
     }
 
     /**
+     * Find a specific Packaging Type by its Transporeon ID.
+     *
+     * @param string $transporeonId
+     * @return PackagingTypeEntity|null
+     * @throws PackagingTypesApiException
+     */
+    public function findOneByTransporeonId(string $transporeonId): ?PackagingTypeEntity
+    {
+        $packagingTypes = $this->getPackagingTypes();
+
+        foreach ($packagingTypes as $packagingType) {
+            if ($packagingType->getTransporeonId() === $transporeonId) {
+                return $packagingType;
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * @param PackagingTypeSortField $sortBy
      * @param bool $onlyActive
      * @return array<int, array<string, mixed>>

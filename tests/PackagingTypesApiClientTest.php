@@ -82,7 +82,7 @@ class PackagingTypesApiClientTest extends TestCase
             ->expects($this->never())
             ->method('getItem');
 
-        // Mock the cache hit for the users
+        // Mock the cache hit for the packaging types
         $packagingTypesCacheItemMock = $this->createMock(CacheItemInterface::class);
         $packagingTypesCacheItemMock
             ->expects($this->once())
@@ -128,7 +128,7 @@ class PackagingTypesApiClientTest extends TestCase
         // Execute the call
         $packagingTypes = $this->instance->getPackagingTypes();
 
-        // Verify resulting users
+        // Verify resulting packaging types
         $this->validatePackagingTypesProperties($packagingTypes);
     }
 
@@ -151,7 +151,7 @@ class PackagingTypesApiClientTest extends TestCase
         // If the Packaging Types cache hits, there is no call to the token cache
         $this->mockTokenCacheHit();
 
-        // Users Cache is bypassed and cache entry is refreshed
+        // Packaging Types Cache is bypassed and cache entry is refreshed
         $packagingTypesCacheItemMock = $this->createMock(CacheItemInterface::class);
         $packagingTypesCacheItemMock
             ->expects($this->never())
@@ -167,7 +167,7 @@ class PackagingTypesApiClientTest extends TestCase
         // Execute the call
         $packagingTypes = $this->instance->getPackagingTypes(PackagingTypeSortField::ID, false, true);
 
-        // Verify resulting users
+        // Verify resulting packaging types
         $this->validatePackagingTypesProperties($packagingTypes);
     }
 
@@ -196,7 +196,7 @@ class PackagingTypesApiClientTest extends TestCase
         // Execute the call
         $packagingTypes = $this->instance->getPackagingTypes();
 
-        // Verify resulting users
+        // Verify resulting packaging types
         $this->validatePackagingTypesProperties($packagingTypes);
 
         // Verify if HTTP requests have been made correctly
@@ -217,7 +217,7 @@ class PackagingTypesApiClientTest extends TestCase
         // Mock the Cache hit for the access token call
         $this->mockTokenCacheMiss();
 
-        // Mock the cache miss for the users
+        // Mock the cache miss for the packaging types
         $this->mockCacheMissForPackagingTypesCall();
 
         // Mock the packaging types response
@@ -251,7 +251,7 @@ class PackagingTypesApiClientTest extends TestCase
         // Mock the Cache hit for the access token call
         $this->mockCacheException();
 
-        // Mock the cache hit for the users
+        // Mock the cache hit for the packaging types
         $packagingTypesCacheItemMock = $this->createMock(CacheItemInterface::class);
         $packagingTypesCacheItemMock
             ->expects($this->once())
@@ -315,7 +315,7 @@ class PackagingTypesApiClientTest extends TestCase
             ->expects($this->never())
             ->method('save');
 
-        // Mock the cache hit for the users
+        // Mock the cache hit for the packaging types
         $packagingTypesCacheItemMock = $this->createMock(CacheItemInterface::class);
         $packagingTypesCacheItemMock
             ->expects($this->once())
@@ -360,7 +360,7 @@ class PackagingTypesApiClientTest extends TestCase
         // Mock the Cache hit for the access token call
         $this->mockTokenCacheHit();
 
-        // Mock the cache miss for the users
+        // Mock the cache miss for the packaging types
         $packagingTypesCacheItemMock = $this->createMock(CacheItemInterface::class);
         $packagingTypesCacheItemMock
             ->expects($this->once())
@@ -402,12 +402,12 @@ class PackagingTypesApiClientTest extends TestCase
      */
     public function testGetPackagingType_PackagingTypeCacheHit(): void
     {
-        // If the User cache hits, there is no call to the token cache
+        // If the Packaging Type cache hits, there is no call to the token cache
         $this->tokenCacheMock
             ->expects($this->never())
             ->method('getItem');
 
-        // Mock the cache hit for the users
+        // Mock the cache hit for the packaging types
         $packagingTypesCacheItemMock = $this->createMock(CacheItemInterface::class);
         $packagingTypesCacheItemMock
             ->expects($this->once())
@@ -442,10 +442,10 @@ class PackagingTypesApiClientTest extends TestCase
             ->never();
 
         // Execute the call
-        $user = $this->instance->getPackagingType('c84056a1-8d36-46c4-ae15-e3cb3db18ed2');
+        $packagingType = $this->instance->getPackagingType('c84056a1-8d36-46c4-ae15-e3cb3db18ed2');
 
-        // Verify resulting users
-        $this->validatePackagingTypeProperties($user);
+        // Verify resulting packaging types
+        $this->validatePackagingTypeProperties($packagingType);
     }
 
     /**
@@ -462,10 +462,10 @@ class PackagingTypesApiClientTest extends TestCase
         // Mock the Cache hit for the access token call
         $this->mockTokenCacheHit();
 
-        // Mock the cache miss for the users
+        // Mock the cache miss for the packaging types
         $this->mockCacheMissForPackagingTypeCall();
 
-        // Mock the users response
+        // Mock the packaging types response
         $this->guzzleMockHandler->append(
             new Response(200, [], (string)file_get_contents(__DIR__ . '/_files/packaging-type.json'))
         );
@@ -492,10 +492,10 @@ class PackagingTypesApiClientTest extends TestCase
         // Mock the Cache hit for the access token call
         $this->mockTokenCacheMiss();
 
-        // Mock the cache miss for the users
+        // Mock the cache miss for the packaging types
         $this->mockCacheMissForPackagingTypeCall();
 
-        // Mock the users response
+        // Mock the packaging types response
         $this->guzzleMockHandler->append(
             new Response(200, [], '{"access_token": "access-token", "expires_in": "60"}'),
             new Response(200, [], (string)file_get_contents(__DIR__ . '/_files/packaging-type.json'))
@@ -588,7 +588,7 @@ class PackagingTypesApiClientTest extends TestCase
             ->expects($this->never())
             ->method('save');
 
-        // Mock the cache hit for the users
+        // Mock the cache hit for the packaging types
         $packagingTypesCacheItemMock = $this->createMock(CacheItemInterface::class);
         $packagingTypesCacheItemMock
             ->expects($this->once())
@@ -633,7 +633,7 @@ class PackagingTypesApiClientTest extends TestCase
         // Mock the Cache hit for the access token call
         $this->mockTokenCacheHit();
 
-        // Mock the cache miss for the users
+        // Mock the cache miss for the packaging types
         $packagingTypesCacheItemMock = $this->createMock(CacheItemInterface::class);
         $packagingTypesCacheItemMock
             ->expects($this->once())
@@ -664,13 +664,71 @@ class PackagingTypesApiClientTest extends TestCase
         $this->instance->getPackagingType('c84056a1-8d36-46c4-ae15-e3cb3db18ed2');
     }
 
+    public function testFindPackagingTypeByTransporeonId(): void
+    {
+        // If the Packaging Types cache hits, there is no call to the token cache
+        $this->tokenCacheMock
+            ->expects($this->never())
+            ->method('getItem');
+
+        // Mock the cache hit for the packaging types
+        $packagingTypesCacheItemMock = $this->createMock(CacheItemInterface::class);
+        $packagingTypesCacheItemMock
+            ->expects($this->once())
+            ->method('isHit')
+            ->willReturn(true);
+        $packagingTypesCacheItemMock
+            ->expects($this->never())
+            ->method('set');
+        $packagingTypesCacheItemMock
+            ->expects($this->once())
+            ->method('get')
+            ->willReturn([
+                (new PackagingTypeEntity())
+                    ->setId(Uuid::fromString('c84056a1-8d36-46c4-ae15-e3cb3db18ed2'))
+                    ->setCategory(Category::PALLET)
+                    ->setName('Module Pallet 240cm')
+                    ->setShortName('MPal 240')
+                    ->setTransporeonId('MODULE_PALLET_240')
+                    ->setLength(240)
+                    ->setWidth(115)
+                    ->setHeight(125)
+                    ->setWeight(50),
+                (new PackagingTypeEntity())
+                    ->setId(Uuid::fromString('05991cfa-84a4-4c7f-9486-7d25c6119238'))
+                    ->setCategory(Category::PARCEL)
+                    ->setName('Box')
+                    ->setTransporeonId('BOX')
+                    ->setLength(40)
+                    ->setWidth(30)
+                    ->setHeight(30)
+                    ->setWeight(0),
+            ]);
+
+        $this->packagingTypesCacheMock
+            ->shouldReceive('getItem')
+            ->once()
+            ->with('packagingTypes')
+            ->andReturns($packagingTypesCacheItemMock);
+        $this->packagingTypesCacheMock
+            ->shouldReceive('save')
+            ->never();
+
+        // Execute the call
+        $packagingType = $this->instance->findOneByTransporeonId('MODULE_PALLET_240');
+
+        // Verify resulting packaging type
+        $this->assertEquals('c84056a1-8d36-46c4-ae15-e3cb3db18ed2', $packagingType->getId()->toString());
+        $this->assertEquals('MODULE_PALLET_240', $packagingType->getTransporeonId());
+    }
+
     /**
      * @param PackagingTypeEntity[] $packagingTypes
      * @return void
      */
     protected function validatePackagingTypesProperties(array $packagingTypes): void
     {
-        // Check the number of returned users
+        // Check the number of returned packaging types
         $this->assertCount(2, $packagingTypes);
 
         // Check that the results are User entities
