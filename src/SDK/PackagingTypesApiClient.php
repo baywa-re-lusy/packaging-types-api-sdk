@@ -8,6 +8,7 @@ use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\UriFactoryInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Http\Client\ClientInterface as HttpClient;
+use Ramsey\Uuid\Uuid;
 use Symfony\Component\Console\Output\OutputInterface as Console;
 use Throwable;
 
@@ -150,7 +151,7 @@ class PackagingTypesApiClient
             foreach ($response['member'] as $packagingTypeData) {
                 $packagingType = new PackagingTypeEntity();
                 $packagingType
-                    ->setId($packagingTypeData['id'])
+                    ->setId(Uuid::fromString($packagingTypeData['id']))
                     ->setName($packagingTypeData['name'])
                     ->setShortName($packagingTypeData['shortName'])
                     ->setTransporeonId($packagingTypeData['transporeonId'])
