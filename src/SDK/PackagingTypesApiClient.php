@@ -3,6 +3,7 @@
 namespace BayWaReLusy\PackagingTypesAPI\SDK;
 
 use BayWaReLusy\PackagingTypesAPI\SDK\PackagingTypeEntity\Category;
+use InvalidArgumentException;
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\UriFactoryInterface;
@@ -15,8 +16,9 @@ use Throwable;
 class PackagingTypesApiClient
 {
     protected const CACHE_KEY_PACKAGING_TYPES = 'packagingTypes';
+    protected const CACHE_KEY_PACKAGING_TYPE  = 'packagingType_%s';
     protected const CACHE_KEY_API_TOKEN       = 'packagingTypesApiToken';
-    protected const CACHE_TTL_PACKAGING_TYPES = 0;
+    protected const CACHE_TTL                 = 0;
     protected const PACKAGING_TYPES_URI       = '/packaging-types';
 
     protected ?string $accessToken = null;
@@ -126,50 +128,22 @@ class PackagingTypesApiClient
                 return $cacheResult;
             }
 
-            // If the cached packaging types are no longer valid, get them from the Packaging Types API
-            $this->loginToAuthServer();
-
-            $queryParams = ['sortBy' => $sortBy->value];
-
-            if ($onlyActive) {
-                $queryParams['active'] = 'true';
-            }
-
-            $uri = $this->uriFactory
-                ->createUri(rtrim($this->apiUrl, '/') . self::PACKAGING_TYPES_URI)
-                ->withQuery(http_build_query($queryParams));
-
-            $request = $this->requestFactory->createRequest('GET', $uri);
-            $request = $request->withHeader('Authorization', sprintf("Bearer %s", $this->accessToken));
-            $request = $request->withHeader('Accept', 'application/ld+json');
-
-            $response       = $this->httpClient->sendRequest($request);
-            $response       = json_decode($response->getBody()->getContents(), true);
+            $apiResponse    = $this->fetchPackagingTypesFromApi($sortBy, $onlyActive);
             $packagingTypes = [];
 
-            // Loop over the result from the API and create User entities
-            foreach ($response['member'] as $packagingTypeData) {
-                $packagingType = new PackagingTypeEntity();
-                $packagingType
-                    ->setId(Uuid::fromString($packagingTypeData['id']))
-                    ->setName($packagingTypeData['name'])
-                    ->setShortName($packagingTypeData['shortName'])
-                    ->setTransporeonId($packagingTypeData['transporeonId'])
-                    ->setCategory(Category::from($packagingTypeData['category']))
-                    ->setActive($packagingTypeData['active'])
-                    ->setLength($packagingTypeData['length'])
-                    ->setWidth($packagingTypeData['width'])
-                    ->setHeight($packagingTypeData['height'])
-                    ->setWeight($packagingTypeData['weight'])
-                    ->setMaxNbStackable($packagingTypeData['maxNbStackable']);
-
+            // Loop over the result from the API and create Packaging Type entities
+            foreach ($apiResponse as $packagingTypeData) {
+                $packagingType    = $this->hydratePackagingType($packagingTypeData);
                 $packagingTypes[] = $packagingType;
+
+                // Also cache each Packaging Type individually
+                $this->cachePackagingType($packagingType);
             }
 
             // Cache the list of packaging types
             $cachedPackagingTypes
                 ->set($packagingTypes)
-                ->expiresAfter(self::CACHE_TTL_PACKAGING_TYPES);
+                ->expiresAfter(self::CACHE_TTL);
 
             $this->cache->save($cachedPackagingTypes);
 
@@ -184,5 +158,134 @@ class PackagingTypesApiClient
             $this->logger?->error($e->getMessage());
             throw new PackagingTypesApiException("Couldn't retrieve the list of Packaging Types.");
         }
+    }
+
+    /**
+     * Get a single packaging type.
+     *
+     * @param string $id The Packaging Type ID
+     * @return PackagingTypeEntity|null
+     * @throws PackagingTypesApiException
+     */
+    public function getPackagingType(string $id): ?PackagingTypeEntity
+    {
+        try {
+            // Get the packaging type from the cache
+            $cachedPackagingType = $this->cache->getItem(sprintf(self::CACHE_KEY_PACKAGING_TYPE, $id));
+
+            // If the cached packaging type is still valid, return it
+            if ($cachedPackagingType->isHit()) {
+                return $cachedPackagingType->get();
+            }
+
+            // If the cached users are no longer valid, get them from the Users API
+            $this->loginToAuthServer();
+
+            $uri = $this->uriFactory
+                ->createUri(rtrim($this->apiUrl, '/') . self::PACKAGING_TYPES_URI . '/' . $id);
+
+            $request = $this->requestFactory->createRequest('GET', $uri);
+            $request = $request->withHeader('Authorization', sprintf("Bearer %s", $this->accessToken));
+            $request = $request->withHeader('Accept', 'application/ld+json');
+
+            $response = $this->httpClient->sendRequest($request);
+
+            // Check for errors
+            if ($response->getStatusCode() >= 400) {
+                if ($response->getStatusCode() === 404) {
+                    return null;
+                }
+
+                throw new \Exception(
+                    sprintf("Received status code %s from Packaging Types API.", $response->getStatusCode())
+                );
+            }
+
+            $response      = json_decode($response->getBody()->getContents(), true);
+            $packagingType = $this->hydratePackagingType($response);
+
+            // Cache the Packaging Type
+            $cachedPackagingType
+                ->set($packagingType)
+                ->expiresAfter(self::CACHE_TTL);
+
+            $this->cache->save($cachedPackagingType);
+
+            return $packagingType;
+        } catch (\Throwable | InvalidArgumentException $e) {
+            $this->logger?->error($e->getMessage());
+            throw new PackagingTypesApiException("Couldn't retrieve the list of Packaging Types.");
+        }
+    }
+
+    protected function fetchPackagingTypesFromApi(
+        PackagingTypeSortField $sortBy,
+        bool $onlyActive = false
+    ): array {
+        $this->loginToAuthServer();
+
+        $queryParams = ['sortBy' => $sortBy->value];
+
+        if ($onlyActive) {
+            $queryParams['active'] = 'true';
+        }
+
+        $uri = $this->uriFactory
+            ->createUri(rtrim($this->apiUrl, '/') . self::PACKAGING_TYPES_URI)
+            ->withQuery(http_build_query($queryParams));
+
+        $request = $this->requestFactory->createRequest('GET', $uri);
+        $request = $request->withHeader('Authorization', sprintf("Bearer %s", $this->accessToken));
+        $request = $request->withHeader('Accept', 'application/ld+json');
+
+        $response = $this->httpClient->sendRequest($request);
+        $response = json_decode($response->getBody()->getContents(), true);
+
+        return $response['member'];
+    }
+
+    protected function hydratePackagingType(array $packagingTypeData): PackagingTypeEntity
+    {
+        $packagingType = new PackagingTypeEntity();
+        $packagingType
+            ->setId(Uuid::fromString($packagingTypeData['id']))
+            ->setName($packagingTypeData['name'])
+            ->setShortName($packagingTypeData['shortName'])
+            ->setTransporeonId($packagingTypeData['transporeonId'])
+            ->setCategory(Category::from($packagingTypeData['category']))
+            ->setActive($packagingTypeData['active'])
+            ->setLength($packagingTypeData['length'])
+            ->setWidth($packagingTypeData['width'])
+            ->setHeight($packagingTypeData['height'])
+            ->setWeight($packagingTypeData['weight'])
+            ->setMaxNbStackable($packagingTypeData['maxNbStackable']);
+
+        return $packagingType;
+    }
+
+    /**
+     * Cache a Packaging Type.
+     *
+     * @param PackagingTypeEntity $packagingType
+     * @return void
+     * @throws \Psr\Cache\InvalidArgumentException
+     */
+    protected function cachePackagingType(PackagingTypeEntity $packagingType): void
+    {
+        $cachedPackagingType = $this->cache->getItem(
+            sprintf(self::CACHE_KEY_PACKAGING_TYPE, $packagingType->getId()->toString())
+
+        );
+        $cachedPackagingType
+            ->expiresAfter(self::CACHE_TTL)
+            ->set($packagingType);
+
+        $this->cache->save($cachedPackagingType);
+
+        $this->console?->writeln(sprintf(
+            "[%s] Cached Packaging Type '%s'.",
+            (new \DateTime())->format(\DateTimeInterface::RFC3339),
+            $packagingType->getName()
+        ));
     }
 }
