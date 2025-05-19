@@ -4,12 +4,14 @@ namespace BayWaReLusy\PackagingTypesAPI\SDK;
 
 use BayWaReLusy\PackagingTypesAPI\SDK\PackagingTypeEntity\Category;
 use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\UuidInterface;
 
 class PackagingTypeEntity
 {
-    protected Uuid $id;
+    protected UuidInterface $id;
     protected string $name;
     protected ?string $shortName = null;
+    protected int $sortOrder;
     protected string $transporeonId;
     protected string $category;
     protected bool $active;
@@ -19,12 +21,12 @@ class PackagingTypeEntity
     protected ?float $weight;
     protected ?int $maxNbStackable;
 
-    public function getId(): Uuid
+    public function getId(): UuidInterface
     {
         return $this->id;
     }
 
-    public function setId(Uuid $id): PackagingTypeEntity
+    public function setId(UuidInterface $id): PackagingTypeEntity
     {
         $this->id = $id;
         return $this;
@@ -49,6 +51,17 @@ class PackagingTypeEntity
     public function setShortName(?string $shortName): PackagingTypeEntity
     {
         $this->shortName = $shortName;
+        return $this;
+    }
+
+    public function getSortOrder(): int
+    {
+        return $this->sortOrder;
+    }
+
+    public function setSortOrder(int $sortOrder): PackagingTypeEntity
+    {
+        $this->sortOrder = $sortOrder;
         return $this;
     }
 

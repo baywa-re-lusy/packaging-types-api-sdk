@@ -2,7 +2,8 @@
 
 namespace BayWaReLusy\PackagingTypesAPI\SDK\Console;
 
-use BayWaReLusy\UsersAPI\SDK\PackagingTypesApiClient;
+use BayWaReLusy\PackagingTypesAPI\SDK\PackagingTypesApiClient;
+use BayWaReLusy\PackagingTypesAPI\SDK\PackagingTypeSortField;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -35,7 +36,7 @@ class RefreshPackagingTypesCache extends Command
 
             $this->packagingTypesApiClient
                 ->setConsole($output)
-                ->getPackagingTypes(true);
+                ->getPackagingTypes(PackagingTypeSortField::ID);
 
             return Command::SUCCESS;
         } catch (\Throwable $e) {

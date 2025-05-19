@@ -1,0 +1,16 @@
+{
+  "@id": "/packaging-types/c84056a1-8d36-46c4-ae15-e3cb3db18ed2",
+  "@type": "PackagingType",
+  "id": "c84056a1-8d36-46c4-ae15-e3cb3db18ed2",
+  "name": "Module Pallet 240cm",
+  "shortName": "MPal 240",
+  "sortOrder": 1,
+  "transporeonId": "MODULE_PALLET_240",
+  "category": "pallet",
+  "active": true,
+  "length": 240,
+  "width": 115,
+  "height": 125,
+  "weight": 50,
+  "maxNbStackable": 2
+}
