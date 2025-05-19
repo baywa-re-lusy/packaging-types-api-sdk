@@ -180,7 +180,7 @@ class PackagingTypesApiClient
                 return $cachedPackagingType->get();
             }
 
-            // If the cached users are no longer valid, get them from the Users API
+            // If the cached packaging types are no longer valid, get them from the Packaging Types API
             $this->loginToAuthServer();
 
             $uri = $this->uriFactory

@@ -27,7 +27,7 @@ $httpFactory = new \Nyholm\Psr7\Factory\Psr17Factory();
 $httpClient  = new \GuzzleHttp\Client();
 
 $packagingTypesApiClient = new \BayWaReLusy\PackagingTypesAPI\SDK\PackagingTypesApiClient(
-    "<URL to Users API>",
+    "<URL to Packaging Types API>",
     "<URL to Token API Endpoint>",
     "<Client ID>",
     "<Client Secret>",

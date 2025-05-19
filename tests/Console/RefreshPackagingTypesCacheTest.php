@@ -40,7 +40,7 @@ class RefreshPackagingTypesCacheTest extends TestCase
             ->with($this->outputInterfaceMock)
             ->willReturnSelf();
 
-        // Expect the getUsers() call
+        // Expect the getPackagingTypes() call
         $this->packagingTypesApiClientMock
             ->expects($this->once())
             ->method('getPackagingTypes');
