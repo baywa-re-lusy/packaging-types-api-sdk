@@ -292,7 +292,9 @@ class PackagingTypesApiClient
             ->setWidth($packagingTypeData['width'])
             ->setHeight($packagingTypeData['height'])
             ->setWeight($packagingTypeData['weight'])
-            ->setMaxNbStackable($packagingTypeData['maxNbStackable']);
+            ->setMaxNbStackable($packagingTypeData['maxNbStackable'])
+            ->setNetSuiteIdentifier($packagingTypeData['netSuiteIdentifier'])
+            ->setColor($packagingTypeData['color']);
 
         return $packagingType;
     }
