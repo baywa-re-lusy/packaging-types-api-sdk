@@ -20,6 +20,8 @@ class PackagingTypeEntity
     protected ?int $height;
     protected ?float $weight;
     protected ?int $maxNbStackable;
+    protected ?string $netSuiteIdentifier;
+    protected ?string $color;
 
     public function getId(): UuidInterface
     {
@@ -178,6 +180,28 @@ class PackagingTypeEntity
     public function setMaxNbStackable(?int $maxNbStackable): PackagingTypeEntity
     {
         $this->maxNbStackable = $maxNbStackable;
+        return $this;
+    }
+
+    public function getNetSuiteIdentifier(): ?string
+    {
+        return $this->netSuiteIdentifier;
+    }
+
+    public function setNetSuiteIdentifier(?string $netSuiteIdentifier): PackagingTypeEntity
+    {
+        $this->netSuiteIdentifier = $netSuiteIdentifier;
+        return $this;
+    }
+
+    public function getColor(): ?string
+    {
+        return $this->color;
+    }
+
+    public function setColor(?string $color): PackagingTypeEntity
+    {
+        $this->color = $color;
         return $this;
     }
 }
