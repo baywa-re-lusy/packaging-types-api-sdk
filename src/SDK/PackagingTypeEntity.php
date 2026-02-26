@@ -20,7 +20,7 @@ class PackagingTypeEntity
     protected ?int $height;
     protected ?float $weight;
     protected ?int $maxNbStackable;
-    protected ?string $netSuiteIdentifier;
+    protected ?string $netSuiteIdentifier = null;
     protected ?string $color;
 
     public function getId(): UuidInterface
